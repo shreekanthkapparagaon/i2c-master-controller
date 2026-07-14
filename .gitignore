@@ -1,0 +1,19 @@
+# Simulation output
+*.vcd
+*.fst
+*.out
+*.log
+
+# GTKWave
+*.gtkw
+
+# Temporary
+*.tmp
+
+# Editors
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
