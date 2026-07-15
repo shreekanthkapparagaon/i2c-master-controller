@@ -1,27 +1,105 @@
-# I2C Timing
+# I2C Timing Diagrams
 
-## Bus Signals
+This document illustrates the basic timing requirements of the I2C protocol using WaveDrom.
 
-- SDA : Serial Data
-- SCL : Serial Clock
+---
 
-## START Condition
+# Bus Idle
 
-SDA transitions HIGH → LOW while SCL is HIGH.
+Both **SCL** and **SDA** remain HIGH.
 
-## STOP Condition
+```wavedrom
+{ signal: [
+  { name: "SCL", wave: "1111111" },
+  { name: "SDA", wave: "1111111" }
+]}
+```
 
-SDA transitions LOW → HIGH while SCL is HIGH.
+---
 
-## Data Transfer
+# START Condition
 
-- Data changes while SCL is LOW.
-- Data is sampled while SCL is HIGH.
+A START condition occurs when **SDA transitions HIGH → LOW while SCL is HIGH**.
 
-## ACK
+```wavedrom
+{ signal: [
+  { name: "SCL", wave: "1111111" },
+  { name: "SDA", wave: "10....." }
+]}
+```
 
-The receiver drives SDA LOW during the ninth clock pulse.
+---
 
-## NACK
+# STOP Condition
 
-The receiver leaves SDA HIGH during the ninth clock pulse.
+A STOP condition occurs when **SDA transitions LOW → HIGH while SCL is HIGH**.
+
+```wavedrom
+{ signal: [
+  { name: "SCL", wave: "1111111" },
+  { name: "SDA", wave: "01....." }
+]}
+```
+
+---
+
+# Write Transaction
+
+The master transmits one byte followed by an ACK.
+
+```wavedrom
+{ signal: [
+  { name: "SCL", wave: "p........" },
+  { name: "SDA", wave: "x=222222=0", data:["D7","D6","D5","D4","D3","D2","D1","D0","ACK"] }
+]}
+```
+
+---
+
+# Read Transaction
+
+The slave transmits one byte.
+
+```wavedrom
+{ signal: [
+  { name: "SCL", wave: "p........" },
+  { name: "SDA", wave: "x=222222=0", data:["D7","D6","D5","D4","D3","D2","D1","D0","ACK"] }
+]}
+```
+
+---
+
+# ACK
+
+The receiver acknowledges by pulling SDA LOW during the ninth clock pulse.
+
+```wavedrom
+{ signal: [
+  { name: "SCL", wave: "p........" },
+  { name: "SDA", wave: "x=222222=0", data:["D7","D6","D5","D4","D3","D2","D1","D0","ACK"] }
+]}
+```
+
+---
+
+# NACK
+
+The receiver does not acknowledge and leaves SDA HIGH during the ninth clock pulse.
+
+```wavedrom
+{ signal: [
+  { name: "SCL", wave: "p........" },
+  { name: "SDA", wave: "x=222222=1", data:["D7","D6","D5","D4","D3","D2","D1","D0","NACK"] }
+]}
+```
+
+---
+
+# Standard Mode
+
+| Parameter | Value |
+|-----------|------:|
+| Bus Frequency | 100 kHz |
+| Clock Period | 10 µs |
+| Address Width | 7-bit |
+| Data Width | 8-bit |

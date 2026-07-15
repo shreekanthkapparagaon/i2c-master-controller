@@ -2,64 +2,123 @@
 
 ## Overview
 
-The I2C Master Controller is divided into independent modules to improve
-reusability, verification, and maintainability.
+This project implements a synthesizable **I2C Master Controller** in Verilog.
 
+The design targets FPGA/ASIC implementation and is verified using:
+
+- Icarus Verilog
+- GTKWave
+
+---
+
+## Supported Features
+
+- Standard Mode (100 kHz)
+- 7-bit Slave Address
+- Read Operation
+- Write Operation
+- START Condition
+- STOP Condition
+- ACK / NACK Detection
+- Configurable Clock Divider
+- Parameterized Design
+
+---
+
+# Top-Level Architecture
+
+```mermaid
+flowchart TD
+
+    CLK[System Clock]
+    CTRL[Control Interface<br/>start / rw / address / tx_data]
+
+    CLK --> DIV[Clock Divider]
+    DIV --> FSM[Transaction FSM]
+
+    CTRL --> FSM
+
+    FSM --> SHIFT[Shift Register]
+    FSM --> SDA[SDA Controller]
+    FSM --> SCL[SCL Generator]
+
+    SHIFT --> SDA
+
+    SDA --> BUS[(SDA)]
+    SCL --> CLKOUT[(SCL)]
+
+    SDA --> ACK[ACK Detector]
+    ACK --> FSM
 ```
-                +------------------+
-                |   i2c_master     |
-                +--------+---------+
-                         |
-      +------------------+------------------+
-      |                                     |
-+-----v------+                    +---------v--------+
-| Clock      |                    | Transaction FSM  |
-| Divider    |                    +---------+--------+
-+-----+------+                              |
-      | Tick                                |
-      |                                     |
-      +----------------+--------------------+
-                       |
-               +-------v--------+
-               | Shift Engine   |
-               +-------+--------+
-                       |
-               +-------v--------+
-               | Open Drain I/O |
-               +-------+--------+
-                       |
-                  SDA / SCL
+
+---
+
+# Module Hierarchy
+
+```mermaid
+flowchart TD
+
+    MASTER[i2c_master]
+
+    MASTER --> DIV[clock_divider]
+
+    MASTER --> FSM[Transaction FSM]
+
+    MASTER --> SHIFT[Shift Register]
+
+    MASTER --> SDA[SDA Controller]
+
+    MASTER --> SCL[SCL Generator]
 ```
 
-## Modules
+---
 
-### Clock Divider
+# Internal Blocks
 
-Generates timing pulses for the controller.
+## Clock Divider
 
-### Transaction FSM
+Generates timing pulses for the I2C controller.
 
-Controls:
+---
+
+## Transaction FSM
+
+Controls the complete I2C transaction.
+
+Responsibilities:
 
 - START
 - STOP
+- Address Transmission
 - Read
 - Write
-- ACK/NACK
-- Multi-byte transfers
+- ACK Detection
+- Transaction Completion
 
-### Shift Engine
+---
 
-Handles serial transmission and reception of data bits.
+## Shift Register
 
-### Open Drain Driver
+Serializes transmitted data and stores received data.
 
-Implements the open-drain behavior required by the I2C bus.
+---
 
-## Design Goals
+## SDA Controller
+
+Implements the required open-drain output.
+
+---
+
+## SCL Generator
+
+Generates the I2C clock from the timing pulse.
+
+---
+
+# Design Goals
 
 - Fully synthesizable
-- Parameterized clock frequency
-- Standard Mode (100 kHz)
-- Extendable to Fast Mode (400 kHz)
-- Modular RTL
+- Parameterized
+- Modular
+- Easy to verify
+- Interview-friendly RTL

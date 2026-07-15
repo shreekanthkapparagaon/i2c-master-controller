@@ -1,59 +1,118 @@
-# Transaction State Machine
+# I2C Master State Machine
 
-## Planned States
+## State Diagram
 
+```mermaid
+stateDiagram-v2
+
+    [*] --> IDLE
+
+    IDLE --> START : start
+
+    START --> SEND_ADDRESS
+
+    SEND_ADDRESS --> ADDRESS_ACK
+
+    ADDRESS_ACK --> WRITE_BYTE : Write
+
+    ADDRESS_ACK --> READ_BYTE : Read
+
+    WRITE_BYTE --> DATA_ACK
+
+    READ_BYTE --> DATA_ACK
+
+    DATA_ACK --> STOP
+
+    STOP --> DONE
+
+    DONE --> IDLE
 ```
-IDLE
- ↓
-START
- ↓
-SEND_ADDRESS
- ↓
-ADDRESS_ACK
- ↓
-WRITE_DATA / READ_DATA
- ↓
-DATA_ACK
- ↓
-STOP
- ↓
-DONE
+
+---
+
+## Transaction Flow
+
+```mermaid
+sequenceDiagram
+
+    participant M as Master
+    participant S as Slave
+
+    M->>S: START
+
+    M->>S: 7-bit Address + R/W
+
+    S-->>M: ACK
+
+    alt Write
+
+        M->>S: Data Byte
+
+        S-->>M: ACK
+
+    else Read
+
+        S->>M: Data Byte
+
+        M-->>S: ACK / NACK
+
+    end
+
+    M->>S: STOP
 ```
 
-## State Description
+---
 
-### IDLE
+# State Description
 
-Wait for the start signal.
+## IDLE
 
-### START
+Wait until `start` is asserted.
+
+---
+
+## START
 
 Generate the START condition.
 
-### SEND_ADDRESS
+---
 
-Transmit the 7-bit slave address and R/W bit.
+## SEND_ADDRESS
 
-### ADDRESS_ACK
+Transmit the 7-bit slave address followed by the R/W bit.
+
+---
+
+## ADDRESS_ACK
 
 Sample the ACK bit from the slave.
 
-### WRITE_DATA
+---
 
-Transmit one data byte.
+## WRITE_BYTE
 
-### READ_DATA
+Transmit one byte.
 
-Receive one data byte.
+---
 
-### DATA_ACK
+## READ_BYTE
 
-Transmit or receive ACK/NACK.
+Receive one byte.
 
-### STOP
+---
+
+## DATA_ACK
+
+Handle the acknowledgment after each transferred byte.
+
+---
+
+## STOP
 
 Generate the STOP condition.
 
-### DONE
+---
 
-Assert the done signal and return to IDLE.
+## DONE
+
+Assert `done` and return to `IDLE`.
