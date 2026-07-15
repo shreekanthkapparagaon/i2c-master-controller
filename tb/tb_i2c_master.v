@@ -161,6 +161,9 @@ module tb_i2c_master;
 
         check(dut.state == 4'd2, "FSM enters START_HOLD state");
         check(busy == 1'b1,      "Busy remains asserted");
+        // New checks
+        check(scl == 1'b1, "SCL HIGH during START");
+        check(sda == 1'b0, "SDA LOW during START");
 
         //--------------------------------------------------------
         // DONE State

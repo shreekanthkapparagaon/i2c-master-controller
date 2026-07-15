@@ -153,11 +153,12 @@ module i2c_master #(
                 sda_drive_low = 1'b0;
             end
             START_HOLD: begin
+
                 busy = 1'b1;
 
-                // Hold START condition
+                // Generate START condition
                 scl_reg       = 1'b1;
-                sda_drive_low = 1'b0;   // We'll change this in the next step to generate a real START
+                sda_drive_low = 1'b1;
             end
 
             DONE: begin
