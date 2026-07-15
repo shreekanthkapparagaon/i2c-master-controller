@@ -26,17 +26,18 @@ module i2c_master #(
 );
 
     //------------------------------------------------------------
-    // State Encoding
+    // FSM State Encoding
     //------------------------------------------------------------
     localparam IDLE         = 4'd0;
     localparam START        = 4'd1;
-    localparam SEND_ADDRESS = 4'd2;
-    localparam ADDRESS_ACK  = 4'd3;
-    localparam WRITE_BYTE   = 4'd4;
-    localparam READ_BYTE    = 4'd5;
-    localparam DATA_ACK     = 4'd6;
-    localparam STOP         = 4'd7;
-    localparam DONE         = 4'd8;
+    localparam START_HOLD   = 4'd2;
+    localparam SEND_ADDRESS = 4'd3;
+    localparam ADDRESS_ACK  = 4'd4;
+    localparam WRITE_BYTE   = 4'd5;
+    localparam READ_BYTE    = 4'd6;
+    localparam DATA_ACK     = 4'd7;
+    localparam STOP         = 4'd8;
+    localparam DONE         = 4'd9;
 
     //------------------------------------------------------------
     // Registers
@@ -95,6 +96,10 @@ module i2c_master #(
             end
 
             START: begin
+                next_state = START_HOLD;
+            end
+
+            START_HOLD: begin
                 next_state = DONE;
             end
 
@@ -146,6 +151,13 @@ module i2c_master #(
                 // START condition will be generated in the next commit.
                 scl_reg       = 1'b1;
                 sda_drive_low = 1'b0;
+            end
+            START_HOLD: begin
+                busy = 1'b1;
+
+                // Hold START condition
+                scl_reg       = 1'b1;
+                sda_drive_low = 1'b0;   // We'll change this in the next step to generate a real START
             end
 
             DONE: begin

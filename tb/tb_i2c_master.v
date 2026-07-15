@@ -74,13 +74,14 @@ module tb_i2c_master;
         case (dut.state)
             4'd0: $display("[%0t] State -> IDLE", $time);
             4'd1: $display("[%0t] State -> START", $time);
-            4'd2: $display("[%0t] State -> SEND_ADDRESS", $time);
-            4'd3: $display("[%0t] State -> ADDRESS_ACK", $time);
-            4'd4: $display("[%0t] State -> WRITE_BYTE", $time);
-            4'd5: $display("[%0t] State -> READ_BYTE", $time);
-            4'd6: $display("[%0t] State -> DATA_ACK", $time);
-            4'd7: $display("[%0t] State -> STOP", $time);
-            4'd8: $display("[%0t] State -> DONE", $time);
+            4'd2: $display("[%0t] State -> START_HOLD", $time);
+            4'd3: $display("[%0t] State -> SEND_ADDRESS", $time);
+            4'd4: $display("[%0t] State -> ADDRESS_ACK", $time);
+            4'd5: $display("[%0t] State -> WRITE_BYTE", $time);
+            4'd6: $display("[%0t] State -> READ_BYTE", $time);
+            4'd7: $display("[%0t] State -> DATA_ACK", $time);
+            4'd8: $display("[%0t] State -> STOP", $time);
+            4'd9: $display("[%0t] State -> DONE", $time);
             default: $display("[%0t] State -> UNKNOWN", $time);
         endcase
     end
@@ -153,12 +154,21 @@ module tb_i2c_master;
         start = 0;
 
         //--------------------------------------------------------
+        // START_HOLD State
+        //--------------------------------------------------------
+        @(posedge clk);
+        #1;
+
+        check(dut.state == 4'd2, "FSM enters START_HOLD state");
+        check(busy == 1'b1,      "Busy remains asserted");
+
+        //--------------------------------------------------------
         // DONE State
         //--------------------------------------------------------
         @(posedge clk);
         #1;
 
-        check(dut.state == 4'd8, "FSM enters DONE state");
+        check(dut.state == 4'd9, "FSM enters DONE state");
         check(done == 1'b1,      "Done asserted");
 
         //--------------------------------------------------------
