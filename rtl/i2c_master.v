@@ -59,10 +59,14 @@ module i2c_master #(
     );
 
     //------------------------------------------------------------
-    // Temporary I2C Bus
+    // I2C Bus Registers
     //------------------------------------------------------------
-    assign scl = 1'b1;
-    assign sda = 1'bz;
+    reg scl_reg;
+    reg sda_drive_low;
+
+    // Open-drain I2C bus
+    assign scl = scl_reg;
+    assign sda = sda_drive_low ? 1'b0 : 1'bz;
 
     //------------------------------------------------------------
     // State Register
@@ -119,18 +123,37 @@ module i2c_master #(
         ack_error = 1'b0;
         rx_data   = 8'h00;
 
+        //--------------------------------------------------------
+        // Default Bus State
+        //--------------------------------------------------------
+        scl_reg       = 1'b1;
+        sda_drive_low = 1'b0;
+
         case (state)
 
             IDLE: begin
                 busy = 1'b0;
+
+                // Bus Idle
+                scl_reg       = 1'b1;
+                sda_drive_low = 1'b0;
             end
 
             START: begin
                 busy = 1'b1;
+
+                // Bus remains idle for now.
+                // START condition will be generated in the next commit.
+                scl_reg       = 1'b1;
+                sda_drive_low = 1'b0;
             end
 
             DONE: begin
                 done = 1'b1;
+
+                // Release bus
+                scl_reg       = 1'b1;
+                sda_drive_low = 1'b0;
             end
 
         endcase
