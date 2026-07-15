@@ -1,4 +1,5 @@
 # Simulation output
+sim
 *.vcd
 *.fst
 *.out
