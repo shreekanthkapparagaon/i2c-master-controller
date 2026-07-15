@@ -45,6 +45,20 @@ module i2c_master #(
     reg [3:0] next_state;
 
     //------------------------------------------------------------
+    // Clock Divider
+    //------------------------------------------------------------
+    wire tick;
+
+    clock_divider #(
+        .CLK_FREQ(CLK_FREQ),
+        .I2C_FREQ(I2C_FREQ)
+    ) u_clock_divider (
+        .clk   (clk),
+        .rst_n (rst_n),
+        .tick  (tick)
+    );
+
+    //------------------------------------------------------------
     // Temporary I2C Bus
     //------------------------------------------------------------
     assign scl = 1'b1;
@@ -57,7 +71,7 @@ module i2c_master #(
 
         if (!rst_n)
             state <= IDLE;
-        else
+        else if (tick)
             state <= next_state;
 
     end
