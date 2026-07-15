@@ -31,13 +31,14 @@ module i2c_master #(
     localparam IDLE         = 4'd0;
     localparam START        = 4'd1;
     localparam START_HOLD   = 4'd2;
-    localparam SEND_ADDRESS = 4'd3;
-    localparam ADDRESS_ACK  = 4'd4;
-    localparam WRITE_BYTE   = 4'd5;
-    localparam READ_BYTE    = 4'd6;
-    localparam DATA_ACK     = 4'd7;
-    localparam STOP         = 4'd8;
-    localparam DONE         = 4'd9;
+    localparam SCL_LOW      = 4'd3;
+    localparam SEND_ADDRESS = 4'd4;
+    localparam ADDRESS_ACK  = 4'd5;
+    localparam WRITE_BYTE   = 4'd6;
+    localparam READ_BYTE    = 4'd7;
+    localparam DATA_ACK     = 4'd8;
+    localparam STOP         = 4'd9;
+    localparam DONE         = 4'd10;
 
     //------------------------------------------------------------
     // Registers
@@ -100,6 +101,10 @@ module i2c_master #(
             end
 
             START_HOLD: begin
+                next_state = SCL_LOW;
+            end
+
+            SCL_LOW: begin
                 next_state = DONE;
             end
 
@@ -159,6 +164,17 @@ module i2c_master #(
                 // Generate START condition
                 scl_reg       = 1'b1;
                 sda_drive_low = 1'b1;
+            end
+            SCL_LOW: begin
+
+                busy = 1'b1;
+
+                // Hold SDA LOW after START
+                sda_drive_low = 1'b1;
+
+                // Pull SCL LOW
+                scl_reg = 1'b0;
+
             end
 
             DONE: begin
