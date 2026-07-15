@@ -13,11 +13,11 @@ A synthesizable **I2C Master Controller** written in Verilog with a complete ver
 
 ### Current
 
-* Parameterized Clock Divider
-* Top-Level I2C Master Interface
-* Project Architecture Documentation
-* I2C Timing Documentation
-* State Machine Documentation
+- Parameterized Clock Divider
+- Top-Level I2C Master Interface
+- Moore FSM Framework
+- Self-checking Verification Environment
+- Project Documentation
 
 ### Planned
 
@@ -28,7 +28,7 @@ A synthesizable **I2C Master Controller** written in Verilog with a complete ver
 * Single Byte Read
 * Single Byte Write
 * Multi-byte Transfer
-* Self-checking Testbench
+* Protocol-level Verification
 
 ---
 
@@ -77,14 +77,13 @@ For detailed design information, see:
 | ------- | :----: | -------------------------------------------------- |
 | v0.1.0  |    ✅   | Initial project structure                          |
 | v0.2.0  |    ✅   | Top-level interface and programmable clock divider |
-| v0.3.0  |    ⏳   | START / STOP generation                            |
-| v0.4.0  |    ⏳   | Address transmission                               |
-| v0.5.0  |    ⏳   | ACK / NACK handling                                |
-| v0.6.0  |    ⏳   | Data write                                         |
-| v0.7.0  |    ⏳   | Data read                                          |
-| v0.8.0  |    ⏳   | Multi-byte transfer                                |
-| v0.9.0  |    ⏳   | Verification environment                           |
-| v1.0.0  |    ⏳   | Stable release                                     |
+| v0.3.0  |    ✅   | Moore FSM Framework |
+| v0.4.0  |    ⏳   | START / STOP generation |
+| v0.5.0  |    ⏳   |Address transmission |
+| v0.6.0  |    ⏳   |ACK / NACK handling |
+| v0.7.0  |    ⏳   |Single-byte Read / Write |
+| v0.8.0  |    ⏳   |Multi-byte transfer |
+| v0.9.0  |    ⏳   |Protocol-level verification |
 
 ---
 
@@ -93,9 +92,10 @@ For detailed design information, see:
 Compile:
 
 ```bash
-iverilog -o sim \
+iverilog -Wall -o sim \
 rtl/clock_divider.v \
-tb/tb_clock_divider.v
+rtl/i2c_master.v \
+tb/tb_i2c_master.v
 ```
 
 Run:
@@ -107,8 +107,10 @@ vvp sim
 Open GTKWave:
 
 ```bash
-gtkwave wave/clock_divider.vcd
+gtkwave wave/i2c_master.vcd
 ```
+
+> **Note:** During simulation, the testbench overrides `CLK_FREQ` and `I2C_FREQ` with smaller values to accelerate verification. The synthesized design continues to use the default parameters (50 MHz system clock and 100 kHz I²C bus).
 
 ---
 
@@ -126,9 +128,10 @@ gtkwave wave/clock_divider.vcd
 
 The project includes detailed design documentation:
 
-* **Architecture** — Overall module organization and design philosophy.
-* **State Machine** — Complete transaction state flow.
-* **Timing** — I2C protocol timing diagrams using WaveDrom.
+- Architecture — Overall module organization.
+- FSM Framework — Moore finite state machine implementation.
+- State Machine — Transaction state flow.
+- Timing — I²C timing diagrams using WaveDrom.
 
 ---
 

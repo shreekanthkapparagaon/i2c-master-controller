@@ -6,6 +6,40 @@ The format is inspired by Keep a Changelog and the project follows Semantic Vers
 
 ---
 
+## [v0.3.0] - 2026-07-15
+
+### Added
+
+- Moore Finite State Machine (FSM) framework.
+- Separate state register and next-state logic.
+- Self-checking verification environment.
+- Automatic PASS / FAIL test reporting.
+- FSM state transition monitoring.
+
+### Changed
+
+- Refactored controller from a single-process FSM to a two-process Moore FSM.
+- Integrated the clock divider with the FSM.
+- Testbench overrides clock parameters for faster simulation.
+
+### Tested
+
+- Reset sequence.
+- IDLE state.
+- START state.
+- DONE state.
+- Busy signal.
+- Done signal.
+- Clock-divider driven FSM operation.
+
+### Notes
+
+- SDA and SCL currently use placeholder assignments.
+- START/STOP signal generation will be implemented in **v0.4.0**.
+- Address transmission and ACK/NACK handling are not yet implemented.
+
+---
+
 ## [v0.2.0] - 2026-07-15
 
 ### Added
