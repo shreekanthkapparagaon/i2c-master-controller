@@ -117,8 +117,13 @@ module i2c_master #(
             case (state)
 
                 //------------------------------------------------
-                // Placeholder
+                // LOAD_ADDRESS
                 //------------------------------------------------
+                LOAD_ADDRESS: begin
+                    shift_reg <= {slave_addr, rw};
+                    bit_cnt   <= 3'd7;
+                end
+
                 default: begin
                     shift_reg <= shift_reg;
                     bit_cnt   <= bit_cnt;

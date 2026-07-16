@@ -195,6 +195,9 @@ module tb_i2c_master;
 
         check(dut.state == 4'd5, "FSM enters SEND_ADDRESS state");
         check(busy == 1'b1,      "Busy remains asserted");
+        
+        check(dut.shift_reg == {slave_addr, rw}, "Shift register loaded");
+        check(dut.bit_cnt == 3'd7, "Bit counter initialized");
 
         //--------------------------------------------------------
         // DONE State
