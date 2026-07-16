@@ -78,7 +78,7 @@ module i2c_master #(
     assign sda = sda_drive_low ? 1'b0 : 1'bz;
 
     //------------------------------------------------------------
-    // State Register
+    // Moore FSM - State Register
     //------------------------------------------------------------
     always @(posedge clk or negedge rst_n) begin
 
@@ -90,7 +90,48 @@ module i2c_master #(
     end
 
     //------------------------------------------------------------
-    // Next-State Logic
+    // Moore FSM - Datapath Register
+    //------------------------------------------------------------
+    // Stores transaction-related data.
+    // The FSM controls *when* updates occur,
+    // while this block performs the actual register updates.
+    //
+    // Current implementation:
+    //   - Placeholder only.
+    //
+    // Future versions:
+    //   - LOAD_ADDRESS  : Load {slave_addr, rw}
+    //   - SEND_ADDRESS  : Shift address bits
+    //   - WRITE_BYTE    : Shift TX data
+    //   - READ_BYTE     : Capture RX data
+    //   - ACK Handling  : Bit counter management
+    //------------------------------------------------------------
+    always @(posedge clk or negedge rst_n) begin
+
+        if (!rst_n) begin
+            shift_reg <= 8'd0;
+            bit_cnt   <= 3'd0;
+        end
+        else if (tick) begin
+
+            case (state)
+
+                //------------------------------------------------
+                // Placeholder
+                //------------------------------------------------
+                default: begin
+                    shift_reg <= shift_reg;
+                    bit_cnt   <= bit_cnt;
+                end
+
+            endcase
+
+        end
+
+    end
+
+    //------------------------------------------------------------
+    // Moore FSM - Next-State Logic
     //------------------------------------------------------------
     always @(*) begin
 
@@ -137,7 +178,7 @@ module i2c_master #(
     end
 
     //------------------------------------------------------------
-    // Output Logic (Moore FSM)
+    // Moore FSM - Output Logic
     //------------------------------------------------------------
     always @(*) begin
 
@@ -167,9 +208,9 @@ module i2c_master #(
 
             START: begin
                 busy = 1'b1;
-
-                // Bus remains idle for now.
-                // START condition will be generated in the next commit.
+                
+                // Prepare START condition.
+                // SDA is driven low in START_HOLD.
                 scl_reg       = 1'b1;
                 sda_drive_low = 1'b0;
             end
@@ -195,15 +236,15 @@ module i2c_master #(
             LOAD_ADDRESS: begin
                 busy = 1'b1;
 
-                // Keep bus in transmit state
+                // Hold bus while datapath prepares
+                // the address shift register.
                 scl_reg       = 1'b0;
                 sda_drive_low = 1'b1;
             end
             SEND_ADDRESS: begin
                 busy = 1'b1;
 
-                // Placeholder
-                // Address shifting will be implemented next
+                // Address transmission handled by datapath logic.
                 scl_reg       = 1'b0;
                 sda_drive_low = 1'b1;
             end
@@ -211,7 +252,7 @@ module i2c_master #(
             DONE: begin
                 done = 1'b1;
 
-                // Release bus
+                // Return the I²C bus to the idle state.
                 scl_reg       = 1'b1;
                 sda_drive_low = 1'b0;
             end
