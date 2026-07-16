@@ -15,20 +15,28 @@ A synthesizable **I2C Master Controller** written in Verilog with a complete ver
 
 - Parameterized Clock Divider
 - Top-Level I2C Master Interface
-- Moore FSM Framework
+- Moore FSM Architecture
+- Integrated Clock Divider with FSM
+- Open-Drain SDA Interface
+- START Condition Generation
+- START_HOLD State
+- SCL_LOW State
+- Address Loading Framework
+- Address Transmission Framework
+- Datapath Separation (FSM + Datapath)
 - Self-checking Verification Environment
+- 22 Automated Functional Tests
 - Project Documentation
 
 ### Planned
 
-* START Condition Generation
-* STOP Condition Generation
-* 7-bit Address Transmission
-* ACK / NACK Detection
-* Single Byte Read
-* Single Byte Write
-* Multi-byte Transfer
-* Protocol-level Verification
+- Address Bit Transmission Engine
+- ACK / NACK Detection
+- STOP Condition Generation
+- Single-byte Write
+- Single-byte Read
+- Multi-byte Transfer
+- Protocol-level Verification
 
 ---
 
@@ -71,19 +79,41 @@ For detailed design information, see:
 
 ---
 
+## Current FSM
+
+```text
+
+IDLE
+ ↓
+START
+ ↓
+START_HOLD
+ ↓
+SCL_LOW
+ ↓
+LOAD_ADDRESS
+ ↓
+SEND_ADDRESS
+ ↓
+DONE
+ ↓
+IDLE
+
+```
+
 ## Development Roadmap
 
-| Version | Status | Description                                        |
-| ------- | :----: | -------------------------------------------------- |
-| v0.1.0  |    ✅   | Initial project structure                          |
-| v0.2.0  |    ✅   | Top-level interface and programmable clock divider |
-| v0.3.0  |    ✅   | Moore FSM Framework |
-| v0.4.0  |    ⏳   | START / STOP generation |
-| v0.5.0  |    ⏳   |Address transmission |
-| v0.6.0  |    ⏳   |ACK / NACK handling |
-| v0.7.0  |    ⏳   |Single-byte Read / Write |
-| v0.8.0  |    ⏳   |Multi-byte transfer |
-| v0.9.0  |    ⏳   |Protocol-level verification |
+| Version | Status | Description |
+| ------- | :----: | ------------------------------------------------------------ |
+| v0.1.0 | ✅ | Initial project structure |
+| v0.2.0 | ✅ | Top-level interface and programmable clock divider |
+| v0.3.0 | ✅ | Moore FSM framework |
+| v0.4.0 | ✅ | Bus engine, START generation, address loading framework |
+| v0.5.0 | ⏳ | Address bit transmission engine |
+| v0.6.0 | ⏳ | ACK / NACK handling |
+| v0.7.0 | ⏳ | Single-byte read/write |
+| v0.8.0 | ⏳ | Multi-byte transfer |
+| v0.9.0 | ⏳ | Protocol-level verification |
 
 ---
 
@@ -113,6 +143,31 @@ gtkwave wave/i2c_master.vcd
 > **Note:** During simulation, the testbench overrides `CLK_FREQ` and `I2C_FREQ` with smaller values to accelerate verification. The synthesized design continues to use the default parameters (50 MHz system clock and 100 kHz I²C bus).
 
 ---
+## Verification Status
+
+Current simulation results:
+
+```text
+======================================
+Total Tests : 22
+Passed      : 22
+Failed      : 0
+RESULT      : PASS
+======================================
+```
+
+The verification environment includes automated checks for:
+
+- Reset sequence
+- FSM state transitions
+- Busy signal
+- Done signal
+- START condition timing
+- SCL_LOW timing
+- Address loading
+- Address transmission framework
+
+--- 
 
 ## Tools
 
