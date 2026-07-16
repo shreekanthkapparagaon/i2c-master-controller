@@ -76,13 +76,14 @@ module tb_i2c_master;
             4'd1: $display("[%0t] State -> START", $time);
             4'd2: $display("[%0t] State -> START_HOLD", $time);
             4'd3:  $display("[%0t] State -> SCL_LOW", $time);
-            4'd4: $display("[%0t] State -> SEND_ADDRESS", $time);
-            4'd5: $display("[%0t] State -> ADDRESS_ACK", $time);
-            4'd6: $display("[%0t] State -> WRITE_BYTE", $time);
-            4'd7: $display("[%0t] State -> READ_BYTE", $time);
-            4'd8: $display("[%0t] State -> DATA_ACK", $time);
-            4'd9: $display("[%0t] State -> STOP", $time);
-            4'd10: $display("[%0t] State -> DONE", $time);
+            4'd4: $display("[%0t] State -> LOAD_ADDRESS", $time);
+            4'd5: $display("[%0t] State -> SEND_ADDRESS", $time);
+            4'd6: $display("[%0t] State -> ADDRESS_ACK", $time);
+            4'd7: $display("[%0t] State -> WRITE_BYTE", $time);
+            4'd8: $display("[%0t] State -> READ_BYTE", $time);
+            4'd9: $display("[%0t] State -> DATA_ACK", $time);
+            4'd10: $display("[%0t] State -> STOP", $time);
+            4'd11: $display("[%0t] State -> DONE", $time);
             default: $display("[%0t] State -> UNKNOWN", $time);
         endcase
     end
@@ -178,12 +179,30 @@ module tb_i2c_master;
         check(sda == 1'b0,       "SDA remains LOW");
 
         //--------------------------------------------------------
+        // LOAD_ADDRESS State
+        //--------------------------------------------------------
+        @(posedge clk);
+        #1;
+
+        check(dut.state == 4'd4, "FSM enters LOAD_ADDRESS state");
+        check(busy == 1'b1,      "Busy remains asserted");
+
+        //--------------------------------------------------------
+        // SEND_ADDRESS State
+        //--------------------------------------------------------
+        @(posedge clk);
+        #1;
+
+        check(dut.state == 4'd5, "FSM enters SEND_ADDRESS state");
+        check(busy == 1'b1,      "Busy remains asserted");
+
+        //--------------------------------------------------------
         // DONE State
         //--------------------------------------------------------
         @(posedge clk);
         #1;
 
-        check(dut.state == 4'd10, "FSM enters DONE state");
+        check(dut.state == 4'd11, "FSM enters DONE state");
         check(done == 1'b1,      "Done asserted");
 
         //--------------------------------------------------------

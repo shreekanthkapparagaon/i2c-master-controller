@@ -28,23 +28,30 @@ module i2c_master #(
     //------------------------------------------------------------
     // FSM State Encoding
     //------------------------------------------------------------
-    localparam IDLE         = 4'd0;
-    localparam START        = 4'd1;
-    localparam START_HOLD   = 4'd2;
-    localparam SCL_LOW      = 4'd3;
-    localparam SEND_ADDRESS = 4'd4;
-    localparam ADDRESS_ACK  = 4'd5;
-    localparam WRITE_BYTE   = 4'd6;
-    localparam READ_BYTE    = 4'd7;
-    localparam DATA_ACK     = 4'd8;
-    localparam STOP         = 4'd9;
-    localparam DONE         = 4'd10;
+    localparam IDLE          = 4'd0;
+    localparam START         = 4'd1;
+    localparam START_HOLD    = 4'd2;
+    localparam SCL_LOW       = 4'd3;
+    localparam LOAD_ADDRESS  = 4'd4;
+    localparam SEND_ADDRESS  = 4'd5;
+    localparam ADDRESS_ACK   = 4'd6;
+    localparam WRITE_BYTE    = 4'd7;
+    localparam READ_BYTE     = 4'd8;
+    localparam DATA_ACK      = 4'd9;
+    localparam STOP          = 4'd10;
+    localparam DONE          = 4'd11;
 
     //------------------------------------------------------------
     // Registers
     //------------------------------------------------------------
     reg [3:0] state;
     reg [3:0] next_state;
+
+    //------------------------------------------------------------
+    // Address Shift Registers
+    //------------------------------------------------------------
+    reg [7:0] shift_reg;
+    reg [2:0] bit_cnt;
 
     //------------------------------------------------------------
     // Clock Divider
@@ -105,6 +112,15 @@ module i2c_master #(
             end
 
             SCL_LOW: begin
+                next_state = LOAD_ADDRESS;
+            end
+
+            LOAD_ADDRESS: begin
+                next_state = SEND_ADDRESS;
+            end
+
+            SEND_ADDRESS: begin
+                // Temporary until address shifting is implemented
                 next_state = DONE;
             end
 
@@ -175,6 +191,21 @@ module i2c_master #(
                 // Pull SCL LOW
                 scl_reg = 1'b0;
 
+            end
+            LOAD_ADDRESS: begin
+                busy = 1'b1;
+
+                // Keep bus in transmit state
+                scl_reg       = 1'b0;
+                sda_drive_low = 1'b1;
+            end
+            SEND_ADDRESS: begin
+                busy = 1'b1;
+
+                // Placeholder
+                // Address shifting will be implemented next
+                scl_reg       = 1'b0;
+                sda_drive_low = 1'b1;
             end
 
             DONE: begin
